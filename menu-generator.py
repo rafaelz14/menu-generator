@@ -355,9 +355,23 @@ menu_sabado = [desayunos_list[5],almuerzos_list[5],cenas_list[5]]
 
 fullmenu = [menu_lunes, menu_martes, menu_miercoles, menu_jueves, menu_viernes, menu_sabado]
 
-df = pd.DataFrame(data=fullmenu)
-df = df.T
-df.rename(columns={0: "Lunes", 1: "Martes", 2: "Miercoles", 3: "Jueves", 4: "Viernes", 5: "Sabado"}, inplace = True)
-df.rename(index={0: "Desayuno", 1: "Almuerzo", 2: "Cena"}, inplace = True)
-df.to_csv('menu.csv')
+menu_semana = pd.DataFrame(data=fullmenu)
+menu_semana = menu_semana.T
+menu_semana.rename(columns={0: "Lunes", 1: "Martes", 2: "Miercoles", 3: "Jueves", 4: "Viernes", 5: "Sabado"}, inplace = True)
+menu_semana.rename(index={0: "Desayuno", 1: "Almuerzo", 2: "Cena"}, inplace = True)
+
+compra = []
+for i in range(0, len(menu)):
+    compra = compra + (menu[i]['desayuno'].get('ingredientes'))
+    compra = compra + (menu[i]['almuerzo'].get('ingredientes'))
+    compra = compra + (menu[i]['cena'].get('ingredientes'))
+
+seen = set()
+compra_clean = [x for x in compra if x not in seen and not seen.add(x)]
+compra_clean_df = pd.DataFrame (compra_clean, columns = ['Productos'])
+
+with pd.ExcelWriter('menu.xlsx') as writer:  
+    menu_semana.to_excel(writer, sheet_name='Menu')
+    compra_clean_df.to_excel(writer, sheet_name='Lista de Compras', index=False)
+
 
